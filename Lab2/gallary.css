@@ -1,0 +1,31 @@
+img{
+    max-width: 100%;
+    max-height: auto;
+    margin: auto;
+    border-radius: 20px;
+    object-fit: cover;
+    opacity: 0.5;
+    transition: tranform 1s;
+    flex-wrap: wrap;
+}
+img:hover
+{
+    opacity: 1;
+    transform: scale(1.2);
+    border: 1px solid white;
+}
+body {
+    background-color: rgb(255, 255, 255);
+}
+.navbar {
+    margin-bottom: 20px;
+}
+.text-1
+{
+    font-size: 40px;
+    text-align: center;
+}
+.lorem-1
+{
+    text-align: center;
+}
