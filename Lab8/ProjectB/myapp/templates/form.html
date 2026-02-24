@@ -1,0 +1,576 @@
+{% extends "Base.html" %}
+
+{% block title %}
+<title>แบบฟอร์มบันทึกข้อมูลประชากร</title>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --bg: #0b0f14;
+    --card: rgba(255,255,255,0.96);
+    --text: #111827;
+    --muted: #6b7280;
+    --border: rgba(17,24,39,.12);
+    --black: #111111;
+    --black2:#1f2937;
+    --ring: rgba(17,17,17,.18);
+  }
+
+  body{
+    background:
+      radial-gradient(1200px 700px at 20% 10%, rgba(255,255,255,.08), transparent 60%),
+      radial-gradient(900px 600px at 80% 0%, rgba(255,255,255,.06), transparent 55%),
+      var(--bg);
+  }
+
+  .form-container {
+    background: var(--card);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.10);
+    transform: translateY(0);
+    transition: transform .6s ease, box-shadow .6s ease;
+    position: relative;
+  }
+  .form-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.03), transparent);
+    transform: rotate(45deg);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .form-container:hover::before { animation: shimmer 1.5s ease-in-out; }
+  @keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); opacity: 0; }
+  }
+  .form-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.4);
+  }
+
+  .form-header {
+    background: linear-gradient(135deg, #0f172a 0%, #111111 55%, #0b0f14 100%);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,.10);
+    position: relative;
+    overflow: hidden;
+  }
+  .form-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left .8s ease;
+  }
+  .form-container:hover .form-header::before { left: 100%; }
+
+  .form-header h2 {
+    position: relative;
+    z-index: 1;
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  @keyframes glow {
+    from { text-shadow: 0 0 10px rgba(255,255,255,0.25); }
+    to   { text-shadow: 0 0 22px rgba(255,255,255,0.55), 0 0 34px rgba(255,255,255,0.35); }
+  }
+
+  .form-body { 
+    padding: 2.5rem; 
+    line-height: 1.6;
+  }
+  
+  .form-section {
+    background: rgba(249, 250, 251, 0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(229, 231, 235, 0.5);
+    position: relative;
+  }
+  
+  .form-section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid rgba(17, 24, 39, 0.1);
+    display: flex;
+    align-items: center;
+  }
+  
+  .form-section-title i {
+    margin-right: 0.5rem;
+    color: #111111;
+  }
+  
+  .required-legend {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: rgba(107, 114, 128, 0.05);
+    border-radius: 6px;
+    text-align: center;
+  }
+  
+  .required-legend::before {
+    content: '*';
+    color: #dc3545;
+    font-weight: bold;
+    margin-right: 0.25rem;
+  }
+  @media (max-width: 576px){
+    .form-body{ padding: 1.5rem; }
+    .form-header{ padding: 1.5rem; }
+  }
+
+  .form-control, .form-select{
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+    font-size: 0.95rem;
+    padding: 0.75rem 1rem;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: #111111;
+    box-shadow: 0 0 0 .2rem var(--ring);
+    transform: translateY(-2px);
+  }
+  .form-control::placeholder{ color: rgba(107,114,128,.8); }
+
+  .form-floating { transition: transform .25s ease; }
+  .form-floating:hover { transform: translateY(-1px); }
+  .form-floating label { 
+    color: var(--muted); 
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  .form-floating .form-control:focus ~ label,
+  .form-floating .form-select:focus ~ label{ 
+    color: #111111;
+    font-weight: 600;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #111111 0%, #1f2937 100%);
+    border: none;
+    padding: 12px 30px;
+    font-weight: 800;
+    border-radius: 14px;
+    transition: transform .25s ease, box-shadow .25s ease, filter .25s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left .5s ease;
+  }
+  .btn-primary:hover::before { left: 100%; }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.25);
+    filter: brightness(1.05);
+  }
+  .btn-primary:disabled{
+    opacity: .7;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  .btn-outline-danger {
+    border-width: 2px;
+    padding: 12px 30px;
+    font-weight: 800;
+    border-radius: 14px;
+    border-color: #ef4444 !important;
+    color: #ffffff !important;
+    transition: transform .25s ease, box-shadow .25s ease, color .25s ease;
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+  }
+  .btn-outline-danger::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    left: -100%;
+    background: #ef4444;
+    transition: left .5s ease;
+    z-index: -1;
+  }
+  .btn-outline-danger:hover::before { left: 0; }
+  .btn-outline-danger:hover {
+    transform: translateY(-2px);
+    color: #ffffff !important;
+    box-shadow: 0 12px 24px rgba(0,0,0,0.18);
+  }
+
+  .info-card {
+    background: linear-gradient(135deg, #111111 0%, #0f172a 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    border: 1px solid rgba(255,255,255,.12);
+    position: relative;
+    overflow: hidden;
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .info-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+    animation: pulse 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(0.85); opacity: 0.55; }
+    50%      { transform: scale(1.2); opacity: 0.85; }
+  }
+  .info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+
+  .invalid-feedback {
+    font-size: 0.825rem;
+    margin-top: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background: rgba(220, 53, 69, 0.1);
+    border-left: 3px solid #dc3545;
+    border-radius: 0 4px 4px 0;
+    color: #dc3545;
+    font-weight: 500;
+  }
+  .alert-success{
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(17,17,17,.15);
+    color: #111111;
+  }
+
+  .footer-dark{
+    margin-top: 18px;
+    background:#111827;
+    color:#e5e7eb;
+    padding: 14px 0;
+    text-align:center;
+    font-size: .92rem;
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+
+  .fade-in{ opacity: 0; transform: translateY(10px); }
+  .fade-in.is-visible{ opacity: 1; transform: translateY(0); transition: opacity .7s ease, transform .7s ease; }
+
+  .scroll-reveal{ opacity: 0; transform: translateY(14px); }
+  .scroll-reveal.is-visible{ opacity: 1; transform: translateY(0); transition: opacity .7s ease, transform .7s ease; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition: none !important; animation: none !important; }
+    .fade-in, .scroll-reveal{ opacity: 1 !important; transform: none !important; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="form-container fade-in">
+      <div class="form-header">
+        <h2 class="mb-0">
+          <i class="bi bi-person-plus-fill me-2"></i>
+          แบบฟอร์มบันทึกข้อมูลประชากร
+        </h2>
+        <p class="mb-0 mt-2 opacity-75">กรุณากรอกข้อมูลให้ครบถ้วนและถูกต้อง</p>
+      </div>
+
+      <div class="form-body">
+        <div class="info-card scroll-reveal">
+          <h5 class="mb-2">
+            <i class="bi bi-info-circle me-2"></i>ข้อมูลสำคัญ
+          </h5>
+          <p class="mb-0 small">
+            ข้อมูลที่คุณให้ไว้จะถูกเก็บเป็นความลับและใช้เพื่อการบันทึกข้อมูลประชากรเท่านั้น
+          </p>
+        </div>
+
+        <div class="alert alert-light border-secondary scroll-reveal" role="alert">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-clock-history me-2 text-secondary"></i>
+            <div>
+              <strong>คำแนะนำ:</strong> กรุณาตรวจสอบข้อมูลให้ถูกต้องก่อนกดปุ่มลงทะเบียน
+            </div>
+          </div>
+        </div>
+
+        <form id="populationForm" novalidate class="scroll-reveal">
+          <div class="required-legend">
+            ช่องที่มีเครื่องหมาย * จำเป็นต้องกรอก
+          </div>
+          
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="bi bi-person"></i>
+              ข้อมูลส่วนตัว
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="firstName" placeholder="ชื่อ" required>
+                  <label for="firstName">ชื่อ *</label>
+                  <div class="invalid-feedback">กรุณาระบุชื่อ</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="lastName" placeholder="นามสกุล" required>
+                  <label for="lastName">นามสกุล *</label>
+                  <div class="invalid-feedback">กรุณาระบุนามสกุล</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="number" class="form-control" id="age" placeholder="อายุ" min="1" max="120" required>
+                  <label for="age">อายุ *</label>
+                  <div class="invalid-feedback">กรุณาระบุอายุที่ถูกต้อง (1-120)</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <select class="form-select" id="gender" required>
+                    <option value="">เลือกเพศ</option>
+                    <option value="male">ชาย</option>
+                    <option value="female">หญิง</option>
+                    <option value="other">อื่นๆ</option>
+                  </select>
+                  <label for="gender">เพศ *</label>
+                  <div class="invalid-feedback">กรุณาเลือกเพศ</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="bi bi-telephone"></i>
+              ข้อมูลติดต่อ
+            </div>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="tel" class="form-control" id="phone" placeholder="เบอร์โทรศัพท์" inputmode="numeric" autocomplete="tel" pattern="^\d{10}$">
+                  <label for="phone">เบอร์โทรศัพท์</label>
+                  <div class="invalid-feedback">กรุณาระบุเบอร์โทรศัพท์ 10 หลัก</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="email" class="form-control" id="email" placeholder="อีเมล" autocomplete="email">
+                  <label for="email">อีเมล</label>
+                  <div class="invalid-feedback">กรุณาระบุอีเมลที่ถูกต้อง</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <div class="form-section-title">
+              <i class="bi bi-house"></i>
+              ที่อยู่
+            </div>
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="houseNumber" placeholder="เลขที่">
+                  <label for="houseNumber">เลขที่</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="village" placeholder="หมู่บ้าน/อาคาร">
+                  <label for="village">หมู่บ้าน/อาคาร</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="road" placeholder="ถนน">
+                  <label for="road">ถนน</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="subdistrict" placeholder="ตำบล/แขวง">
+                  <label for="subdistrict">ตำบล/แขวง</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="district" placeholder="อำเภอ/เขต">
+                  <label for="district">อำเภอ/เขต</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="province" placeholder="จังหวัด">
+                  <label for="province">จังหวัด</label>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" id="zipcode" placeholder="รหัสไปรษณีย์" pattern="\d{5}">
+                  <label for="zipcode">รหัสไปรษณีย์</label>
+                  <div class="invalid-feedback">กรุณาระบุรหัสไปรษณีย์ 5 หลัก</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-floating mb-3">
+                  <textarea class="form-control" id="address" placeholder="ที่อยู่เพิ่มเติม" style="height: 110px"></textarea>
+                  <label for="address">ที่อยู่เพิ่มเติม</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-3 justify-content-center flex-wrap">
+            <button id="submitBtn" type="submit" class="btn btn-primary btn-lg">
+              <span class="btn-text"><i class="bi bi-check-circle me-2"></i>ลงทะเบียน</span>
+              <span class="btn-loading d-none"><span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>กำลังบันทึก...</span>
+            </button>
+
+            <button type="button" class="btn btn-outline-danger btn-lg" onclick="clearForm()">
+              <i class="bi bi-x-circle me-2"></i>ล้างข้อมูล
+            </button>
+
+            <button type="button" class="btn btn-outline-secondary btn-lg" onclick="window.print()">
+              <i class="bi bi-printer me-2"></i>พิมพ์ฟอร์ม
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="alert alert-success alert-dismissible fade show mt-4" id="successAlert" role="alert" style="display:none;">
+      <i class="bi bi-check-circle-fill me-2"></i>
+      <strong>สำเร็จ!</strong> ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+
+<div class="footer-dark">
+  © 2026 ICT12367 SPU | Information Technology
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.fade-in').forEach(el => el.classList.add('is-visible'));
+  });
+
+  const revealEls = document.querySelectorAll('.scroll-reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('is-visible'); });
+  }, { threshold: 0.12 });
+  revealEls.forEach(el => io.observe(el));
+
+  const form = document.getElementById('populationForm');
+  const successAlert = document.getElementById('successAlert');
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText = submitBtn.querySelector('.btn-text');
+  const btnLoading = submitBtn.querySelector('.btn-loading');
+
+  function setLoading(isLoading){
+    submitBtn.disabled = isLoading;
+    btnText.classList.toggle('d-none', isLoading);
+    btnLoading.classList.toggle('d-none', !isLoading);
+  }
+
+  function trimInputs(){
+    ['firstName','lastName','email','address','houseNumber','village','road','subdistrict','district','province','zipcode'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && typeof el.value === 'string') el.value = el.value.trim();
+    });
+  }
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    trimInputs();
+
+    if (this.checkValidity()) {
+      setLoading(true);
+
+      setTimeout(() => {
+        successAlert.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        setTimeout(() => {
+          clearForm();
+          successAlert.style.display = 'none';
+        }, 2500);
+
+        setLoading(false);
+      }, 600);
+    }
+
+    this.classList.add('was-validated');
+  });
+
+  window.clearForm = function clearForm() {
+    form.reset();
+    form.classList.remove('was-validated');
+    successAlert.style.display = 'none';
+    setLoading(false);
+  }
+
+  document.getElementById('phone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '').slice(0, 10);
+    e.target.value = value;
+  });
+
+  document.getElementById('zipcode').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '').slice(0, 5);
+    e.target.value = value;
+  });
+
+  document.getElementById('age').addEventListener('input', function(e) {
+    let v = parseInt(e.target.value, 10);
+    if (Number.isNaN(v)) return;
+    if (v > 120) e.target.value = 120;
+    if (v < 1) e.target.value = '';
+  });
+</script>
+{% endblock %}
