@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact</title>
+</head>
+<body>
+    <h1>Contact Us</h1>
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <label for="name">Name:</label><br>
+            <input type="text" id="name" name="name" required>
+        </p>
+        <p>
+            <label for="email">Email:</label><br>
+            <input type="email" id="email" name="email" required>
+        </p>
+        <p>
+            <label for="message">Message:</label><br>
+            <textarea id="message" name="message" rows="4" required></textarea>
+        </p>
+        <p>
+            <button type="submit">Send Message</button>
+        </p>
+    </form>
+    <a href="/">Back to Home</a>
+</body>
+</html>
